@@ -4,8 +4,8 @@
       {{ route.query?.id ? '修改图片' : '创建图片' }}
     </h2>
     <PictureUpload :picture="picture" :onSuccess="onSuccess" />
-    <a-form v-if="picture" layout="vertical" :model="pictureForm"@finish="handleSubmit">
-    <a-form-item label="名称" name="name">
+    <a-form v-if="picture" layout="vertical" :model="pictureForm" @finish="handleSubmit">
+      <a-form-item label="名称" name="name">
         <a-input v-model:value="pictureForm.name" placeholder="请输入名称" />
       </a-form-item>
       <a-form-item label="简介" name="introduction">
@@ -17,48 +17,59 @@
           allowClear
         />
       </a-form-item>
-      <a-form-item>
-      <a-auto-complete
-        v-model:value="pictureForm.category"
-        placeholder="请输入分类"
-        :options="categoryOptions.map(item => ({ value: item }))"
-        allowClear
-      />
+      <a-form-item label="分类" name="category">
+        <a-auto-complete
+          v-model:value="pictureForm.category"
+          placeholder="请输入分类"
+          :options="categoryOptions.map((item) => ({ value: item }))"
+          allowClear
+        />
       </a-form-item>
-      <a-form-item>
-      <a-select
-        v-model:value="pictureForm.tags"
-        mode="tags"
-        placeholder="请输入标签"
-        :options="tagOptions.map(item => ({ value: item, label: item }))"
-        allowClear
-      />
+      <a-form-item label="标签" name="tags">
+        <a-select
+          v-model:value="pictureForm.tags"
+          mode="tags"
+          placeholder="请输入标签"
+          :options="tagOptions.map((item) => ({ value: item, label: item }))"
+          allowClear
+        />
       </a-form-item>
       <a-form-item>
         <a-button type="primary" html-type="submit" style="width: 100%">创建</a-button>
       </a-form-item>
+      <a-form-item>
+        <a-button danger style="width: 100%" @click="handleCancel">取消</a-button>
+      </a-form-item>
     </a-form>
   </div>
-
 </template>
 
 <script setup lang="ts">
-import PictureUpload   from '@/components/PictureUpload.vue'
+import PictureUpload from '@/components/PictureUpload.vue'
 import { onMounted, reactive, ref } from 'vue'
 import {
   editPictureUsingPost,
   getPictureVoByIdUsingGet,
-  listPictureTagCategoryUsingGet
+  listPictureTagCategoryUsingGet,
+  deletePictureUsingPost,
 } from '@/api/pictureController.ts'
 import { useRoute, useRouter } from 'vue-router'
 import { message } from 'ant-design-vue'
 
-
 const picture = ref<API.PictureVO>()
-const pictureForm = reactive<API.PictureEditRequest>({})
+const pictureForm = reactive<{
+  name?: string
+  introduction?: string
+  category?: string
+  tags?: string[]
+}>({})
 const onSuccess = (newPicture: API.PictureVO) => {
   picture.value = newPicture
   pictureForm.name = newPicture.name
+  pictureForm.introduction = newPicture.introduction
+  pictureForm.category = newPicture.category
+  pictureForm.tags =
+    typeof newPicture.tags === 'string' ? JSON.parse(newPicture.tags) : newPicture.tags
 }
 const router = useRouter()
 
@@ -66,14 +77,13 @@ const router = useRouter()
  * 提交表单
  * @param values
  */
-const handleSubmit = async (values: any) => {
-  const pictureId = picture.value.id
-  if (!pictureId) {
-    return
-  }
+const handleSubmit = async (values: Record<string, any>) => {
+  const pictureId = picture.value?.id
+  if (!pictureId) return
   const res = await editPictureUsingPost({
     id: pictureId,
     ...values,
+    tags: Array.isArray(values.tags) ? values.tags : [],
   })
   if (res.data.code === 0 && res.data.data) {
     message.success('创建成功')
@@ -104,24 +114,23 @@ onMounted(() => {
   getTagCategoryOptions()
 })
 
-
-const route =  useRoute()
+const route = useRoute()
 
 // 获取老数据
 const getOldPicture = async () => {
   // 获取数据
-  const id = route.query?.id
+  const idRaw = route.query?.id
+  const id =
+    typeof idRaw === 'string' ? Number(idRaw) : Array.isArray(idRaw) ? Number(idRaw[0]) : undefined
   if (id) {
-    const res = await getPictureVoByIdUsingGet({
-      id
-    })
+    const res = await getPictureVoByIdUsingGet({ id })
     if (res.data.code === 0 && res.data.data) {
       const data = res.data.data
       picture.value = data
       pictureForm.name = data.name
       pictureForm.introduction = data.introduction
       pictureForm.category = data.category
-      pictureForm.tags = data.tags
+      pictureForm.tags = typeof data.tags === 'string' ? JSON.parse(data.tags) : data.tags
     }
   }
 }
@@ -130,7 +139,12 @@ onMounted(() => {
   getOldPicture()
 })
 
-
+const handleCancel = async () => {
+  if (picture.value?.id) {
+    await deletePictureUsingPost({ id: picture.value.id })
+  }
+  router.push('/admin/picture_manage')
+}
 </script>
 
 <style scoped>
@@ -138,5 +152,4 @@ onMounted(() => {
   max-width: 720px;
   margin: 0 auto;
 }
-
 </style>

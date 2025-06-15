@@ -8,7 +8,9 @@
           <a-radio-button value="card">卡片视图</a-radio-button>
         </a-radio-group>
         <a-button type="primary" href="/add_picture" target="_blank">+ 创建图片</a-button>
-        <a-button type="primary" href="/add_picture/batch" target="_blank" ghost>+ 批量创建图片</a-button>
+        <a-button type="primary" href="/add_picture/batch" target="_blank" ghost
+          >+ 批量创建图片</a-button
+        >
       </a-space>
     </a-flex>
 
@@ -54,7 +56,7 @@
       <a-table
         :columns="columns"
         :data-source="dataList"
-        :pagination="pagination"
+        :pagination="false"
         @change="doTableChange"
         :rowKey="(record, index) => index"
       >
@@ -65,113 +67,108 @@
           <template v-if="column.dataIndex === 'url'">
             <a-image
               :src="record.url"
-              :width="160"
-              :height="90"
-              :style="{ objectFit: 'cover' }"
-              :preview="{
-                src: record.url
-              }"
+              :width="200"
+              :height="112"
+              :style="{ objectFit: 'cover', borderRadius: '4px' }"
+              :preview="{ src: record.url }"
             />
           </template>
           <template v-if="column.dataIndex === 'basicInfo'">
-            <div><strong>{{ record.name }}</strong></div>
-            <div>{{ record.introduction }}</div>
+            <div>
+              <strong>{{ record.name }}</strong>
+            </div>
             <div>类型：{{ record.category }}</div>
             <div class="tags-container">
-              <a-tag v-for="tag in JSON.parse(record.tags || '[]')" :key="tag">
+              <a-tag
+                v-for="tag in Array.isArray(record.tags)
+                  ? record.tags
+                  : JSON.parse(record.tags || '[]')"
+                :key="tag"
+              >
                 {{ tag }}
               </a-tag>
             </div>
           </template>
+          <template v-if="column.dataIndex === 'introduction'">
+            <div style="max-width: 200px; white-space: pre-line; word-break: break-all">
+              {{ record.introduction }}
+            </div>
+          </template>
           <template v-if="column.dataIndex === 'userInfo'">
             <div>用户ID：{{ record.userId }}</div>
-            <div>空间ID：{{ record.spaceId }}</div>
-          </template>
-          <template v-if="column.dataIndex === 'picInfo'">
-            <div>格式：{{ record.picFormat }}</div>
-            <div>尺寸：{{ record.picWidth }}×{{ record.picHeight }}</div>
-            <div>大小：{{ (record.picSize / 1024).toFixed(2) }}KB</div>
+            <div>空间ID：{{ record.spaceId || '-' }}</div>
           </template>
           <template v-if="column.dataIndex === 'timeInfo'">
-            <div>创建：{{ dayjs(record.createTime).format('YYYY-MM-DD HH:mm') }}</div>
-            <div>编辑：{{ dayjs(record.editTime).format('YYYY-MM-DD HH:mm') }}</div>
-          </template>
-          <template v-if="column.dataIndex === 'reviewInfo'">
-            <div>状态：{{ PIC_REVIEW_STATUS_MAP[record.reviewStatus] }}</div>
-            <div v-if="record.reviewMessage">信息：{{ record.reviewMessage }}</div>
-            <div v-if="record.reviewerId">审核人：{{ record.reviewerId }}</div>
-            <div v-if="record.reviewTime">
-              时间：{{ dayjs(record.reviewTime).format('YYYY-MM-DD HH:mm') }}
-            </div>
+            <div>创建：{{ dayjs(record.createTime).format('YYYY-MM-DD') }}</div>
+            <div>编辑：{{ dayjs(record.editTime).format('YYYY-MM-DD') }}</div>
           </template>
           <template v-else-if="column.key === 'action'">
             <a-space>
-              <a-button type="link" :href="`/add_picture?id=${record.id}`" target="_blank">
-                编辑
-              </a-button>
-              <a-button type="link" danger @click="doDelete(record.id)">删除</a-button>
+              <a-button type="link" :href="`/add_picture?id=${record.id}`" target="_blank"
+                >编辑</a-button
+              >
+              <a-button type="link" danger @click="doDelete(record.id!)">删除</a-button>
             </a-space>
-            <!--          <a-space wrap>-->
-            <!--            <a-button-->
-            <!--              v-if="record.reviewStatus !== PIC_REVIEW_STATUS_ENUM.PASS"-->
-            <!--              type="link"-->
-            <!--              @click="handleReview(record, PIC_REVIEW_STATUS_ENUM.PASS)"-->
-            <!--            >-->
-            <!--              通过-->
-            <!--            </a-button>-->
-            <!--            <a-button-->
-            <!--              v-if="record.reviewStatus !== PIC_REVIEW_STATUS_ENUM.REJECT"-->
-            <!--              type="link"-->
-            <!--              danger-->
-            <!--              @click="handleReview(record, PIC_REVIEW_STATUS_ENUM.REJECT)"-->
-            <!--            >-->
-            <!--              拒绝-->
-            <!--            </a-button>-->
-            <!--          </a-space>-->
           </template>
         </template>
       </a-table>
+      <div class="pagination-container">
+        <a-pagination
+          v-model:current="searchParams.current"
+          v-model:pageSize="searchParams.pageSize"
+          :total="total"
+          show-size-changer
+          @change="fetchData"
+          @showSizeChange="fetchData"
+        />
+      </div>
     </div>
 
     <!-- 卡片视图 -->
-    <div v-else class="card-container">
-      <a-row :gutter="[16, 16]">
-        <a-col :xs="24" :sm="12" :md="8" :lg="6" :xl="4" v-for="(record, index) in dataList" :key="index">
-          <a-card class="picture-card">
-            <template #cover>
-              <a-image
-                :src="record.url"
-                :height="160"
-                :style="{ width: '100%', objectFit: 'cover' }"
-                :preview="{
-                  src: record.url
-                }"
-              />
-            </template>
-            <a-card-meta :title="record.name" :description="record.introduction" />
-            <div class="card-content">
-              <div class="card-tags">
-                <a-tag v-for="tag in JSON.parse(record.tags || '[]')" :key="tag">
-                  {{ tag }}
-                </a-tag>
-              </div>
-              <div class="card-info">
-                <div>类型：{{ record.category }}</div>
-                <div>尺寸：{{ record.picWidth }}×{{ record.picHeight }}</div>
-                <div>大小：{{ (record.picSize / 1024).toFixed(2) }}KB</div>
-              </div>
-              <div class="card-actions">
-                <a-space>
-                  <a-button type="link" size="small" :href="`/add_picture?id=${record.id}`" target="_blank">
-                    编辑
-                  </a-button>
-                  <a-button type="link" size="small" danger @click="doDelete(record.id)">删除</a-button>
-                </a-space>
-              </div>
+    <div v-else class="card-container card-grid">
+      <div class="card-list">
+        <div class="picture-card card-hover" v-for="(record, index) in dataList" :key="index">
+          <div class="card-image-wrapper">
+            <a-image
+              :src="record.url"
+              :style="{
+                aspectRatio: '16/9',
+                width: '100%',
+                objectFit: 'cover',
+                borderRadius: '4px',
+              }"
+              :preview="{ src: record.url }"
+            />
+          </div>
+          <div class="card-info-block">
+            <div class="card-title">{{ record.name }}</div>
+            <div class="card-category">类型：{{ record.category }}</div>
+            <div class="card-tags">
+              <a-tag
+                v-for="tag in Array.isArray(record.tags)
+                  ? record.tags
+                  : JSON.parse(record.tags || '[]')"
+                :key="tag"
+              >
+                {{ tag }}
+              </a-tag>
             </div>
-          </a-card>
-        </a-col>
-      </a-row>
+            <div class="card-time">创建：{{ dayjs(record.createTime).format('YYYY-MM-DD') }}</div>
+            <div class="card-actions">
+              <a-button
+                type="link"
+                size="small"
+                :href="`/add_picture?id=${record.id}`"
+                target="_blank"
+                >编辑</a-button
+              >
+              <a-button type="link" size="small" danger @click="doDelete(record.id!)"
+                >删除</a-button
+              >
+            </div>
+          </div>
+        </div>
+      </div>
       <div class="pagination-container">
         <a-pagination
           v-model:current="searchParams.current"
@@ -187,7 +184,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import {
   deletePictureUsingPost,
   // doPictureReviewUsingPost,
@@ -200,13 +197,7 @@ import { message } from 'ant-design-vue'
 //   PIC_REVIEW_STATUS_OPTIONS,
 // } from '../../constants/picture.ts'
 import dayjs from 'dayjs'
-
-// 临时定义，实际使用时请从 constants/picture.ts 导入
-const PIC_REVIEW_STATUS_MAP: Record<number, string> = {
-  0: '待审核',
-  1: '通过',
-  2: '拒绝'
-}
+import type { TablePaginationConfig } from 'ant-design-vue/es/table'
 
 const viewMode = ref<'table' | 'card'>('table')
 
@@ -215,40 +206,42 @@ const columns = [
     title: '序号',
     dataIndex: 'index',
     width: 60,
+    align: 'center',
   },
   {
     title: '图片',
     dataIndex: 'url',
-    width: 180,
+    width: 220,
+    align: 'center',
   },
   {
     title: '基本信息',
     dataIndex: 'basicInfo',
+    align: 'center',
+  },
+  {
+    title: '简介',
+    dataIndex: 'introduction',
+    align: 'center',
+    width: 160,
   },
   {
     title: '用户信息',
     dataIndex: 'userInfo',
     width: 120,
-  },
-  {
-    title: '图片信息',
-    dataIndex: 'picInfo',
-    width: 120,
+    align: 'center',
   },
   {
     title: '时间信息',
     dataIndex: 'timeInfo',
-    width: 150,
-  },
-  {
-    title: '审核信息',
-    dataIndex: 'reviewInfo',
-    width: 180,
+    width: 160,
+    align: 'center',
   },
   {
     title: '操作',
     key: 'action',
     width: 120,
+    align: 'center',
   },
 ]
 
@@ -287,19 +280,8 @@ onMounted(() => {
   fetchData()
 })
 
-// 分页参数
-const pagination = computed(() => {
-  return {
-    current: searchParams.current,
-    pageSize: searchParams.pageSize,
-    total: total.value,
-    showSizeChanger: true,
-    showTotal: (total) => `共 ${total} 条`,
-  }
-})
-
 // 表格变化之后，重新获取数据
-const doTableChange = (page: any) => {
+const doTableChange = (page: Partial<TablePaginationConfig>) => {
   searchParams.current = page.current
   searchParams.pageSize = page.pageSize
   fetchData()
@@ -313,12 +295,12 @@ const doSearch = () => {
 }
 
 // 删除数据
-const doDelete = async (id: string) => {
+const doDelete = async (id: number | string) => {
   if (!id) {
     return
   }
   try {
-    const res = await deletePictureUsingPost({ id })
+    const res = await deletePictureUsingPost({ id: String(id) })
     if (res.data.code === 0) {
       message.success('删除成功')
       // 刷新数据
@@ -372,41 +354,69 @@ const doDelete = async (id: string) => {
   margin-top: 16px;
 }
 
+.card-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+.card-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
 .picture-card {
+  position: relative;
+  width: 320px;
   margin-bottom: 16px;
-  height: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  background: #fff;
+  transition: box-shadow 0.2s;
   display: flex;
   flex-direction: column;
 }
-
-.card-content {
-  margin-top: 12px;
-  flex: 1;
+.picture-card:hover {
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18);
+}
+.card-image-wrapper {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  overflow: hidden;
+}
+.card-info-block {
+  padding: 16px 12px 12px 12px;
   display: flex;
   flex-direction: column;
+  align-items: flex-start;
 }
-
+.card-title {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.card-category {
+  font-size: 14px;
+  margin-bottom: 8px;
+}
 .card-tags {
-  margin: 8px 0;
+  margin-bottom: 8px;
 }
-
-.card-info {
-  margin: 8px 0;
-  color: rgba(0, 0, 0, 0.45);
+.card-time {
   font-size: 12px;
+  margin-bottom: 12px;
 }
-
 .card-actions {
-  margin-top: auto;
-  text-align: right;
+  display: flex;
+  gap: 8px;
 }
-
-.tags-container {
-  margin-top: 8px;
-}
-
 .pagination-container {
   margin-top: 16px;
-  text-align: right;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 48px;
+  width: 100%;
 }
 </style>
