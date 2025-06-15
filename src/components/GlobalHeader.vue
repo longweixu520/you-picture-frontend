@@ -13,7 +13,7 @@
         <a-menu
           v-model:selectedKeys="current"
           mode="horizontal"
-          :items="items"
+          :items="filteredItems"
           @click="doMenuClick"
         />
       </a-col>
@@ -46,14 +46,14 @@
 </template>
 
 <script lang="ts" setup>
-import { h, ref } from 'vue'
+import { h, ref, computed } from 'vue'
 import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue'
 import type { MenuProps } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 
 const loginUserStore = useLoginUserStore()
 
-const items = ref<MenuProps['items']>([
+const allItems = ref<MenuProps['items']>([
   {
     key: '/',
     icon: () => h(HomeOutlined),
@@ -61,9 +61,14 @@ const items = ref<MenuProps['items']>([
     title: '主页',
   },
   {
-    key: '/about',
-    label: '关于',
-    title: '关于',
+    key: '/add_picture',
+    label: '创建图片',
+    title: '创建图片',
+  },
+  {
+    key: '/admin/UserManage',
+    label: '用户管理',
+    title: '用户管理',
   },
   {
     key: 'others',
@@ -71,6 +76,17 @@ const items = ref<MenuProps['items']>([
     title: '编程导航',
   },
 ])
+
+// 计算属性，根据用户权限过滤菜单项
+const filteredItems = computed(() => {
+  return allItems.value?.filter(item => {
+    // 如果不是管理员，过滤掉/admin开头的菜单
+    if (item?.key?.toString().startsWith('/admin')) {
+      return loginUserStore.loginUser.userRole === 'admin'
+    }
+    return true
+  })
+})
 
 import { useRouter } from 'vue-router'
 import { useLoginUserStore } from '@/stores/useLoginUserStore.ts'
@@ -105,6 +121,7 @@ const doMenuClick = ({ key }: { key: string }) => {
     path: key,
   })
 }
+
 </script>
 
 <style scoped>

@@ -14,11 +14,7 @@
         class="login-form"
       >
         <a-form-item name="userAccount" :rules="[{ required: true, message: '请输入账号' }]">
-          <a-input
-            v-model:value="formState.userAccount"
-            placeholder="请输入账号"
-            size="large"
-          >
+          <a-input v-model:value="formState.userAccount" placeholder="请输入账号" size="large">
             <template #prefix>
               <UserOutlined style="color: rgba(0, 0, 0, 0.25)" />
             </template>
@@ -44,12 +40,7 @@
         </a-form-item>
 
         <a-form-item>
-          <a-button
-            type="primary"
-            html-type="submit"
-            size="large"
-            class="login-btn"
-          >
+          <a-button type="primary" html-type="submit" size="large" class="login-btn">
             登录
           </a-button>
         </a-form-item>
@@ -108,85 +99,118 @@ const handleSubmit = async (values: any) => {
   align-items: center;
   height: 100vh;
   width: 100vw;
-  background-color: #f0f2f5;
-  background-image: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+  animation: bgMove 10s ease-in-out infinite alternate;
   margin: 0;
   padding: 0;
   overflow: hidden;
 }
-
-.login-card {
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-  padding: 40px;
-  width: 100%;
-  max-width: 420px;
-  transition: all 0.3s ease;
-  margin: 20px;
+@keyframes bgMove {
+  0% {
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
 }
 
+.login-card {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 18px;
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.18);
+  backdrop-filter: blur(12px) saturate(180%);
+  -webkit-backdrop-filter: blur(12px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.24);
+  padding: 48px 36px 32px 36px;
+  width: 100%;
+  max-width: 420px;
+  transition: box-shadow 0.3s;
+  margin: 20px;
+}
 .login-card:hover {
-  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 12px 32px 0 rgba(31, 38, 135, 0.22);
 }
 
 .header {
   text-align: center;
-  margin-bottom: 30px;
+  margin-bottom: 32px;
 }
-
 .title {
-  font-size: 24px;
+  font-size: 30px;
   color: #1890ff;
-  margin-bottom: 8px;
-  font-weight: 600;
+  margin-bottom: 6px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-shadow: 0 2px 8px rgba(24, 144, 255, 0.08);
 }
-
 .desc {
-  color: #666;
-  font-size: 14px;
+  color: #888;
+  font-size: 15px;
+  font-weight: 400;
+  letter-spacing: 1px;
 }
-
 .login-form .ant-form-item {
-  margin-bottom: 20px;
+  margin-bottom: 22px;
 }
-
+.login-form .ant-input-affix-wrapper,
+.login-form .ant-input-password {
+  border-radius: 8px;
+  transition:
+    box-shadow 0.2s,
+    border-color 0.2s;
+}
+.login-form .ant-input-affix-wrapper:focus-within,
+.login-form .ant-input-password:focus-within {
+  box-shadow: 0 0 0 2px #bae7ff;
+  border-color: #40a9ff;
+}
 .login-btn {
   width: 100%;
-  height: 40px;
-  font-weight: 500;
+  height: 44px;
+  font-weight: 600;
   margin-top: 10px;
+  border-radius: 8px;
+  background: linear-gradient(90deg, #1890ff 0%, #66e0ff 100%);
+  border: none;
+  transition:
+    background 0.2s,
+    box-shadow 0.2s;
+  box-shadow: 0 2px 8px rgba(24, 144, 255, 0.08);
 }
-
+.login-btn:hover {
+  background: linear-gradient(90deg, #66e0ff 0%, #1890ff 100%);
+  box-shadow: 0 4px 16px rgba(24, 144, 255, 0.16);
+}
 .footer {
   text-align: center;
-  margin-top: 16px;
+  margin-top: 18px;
 }
-
 .tips {
-  color: #666;
-  font-size: 14px;
+  color: #888;
+  font-size: 15px;
+  font-weight: 400;
 }
-
 .register-link {
-  color: #1890ff;
-  font-weight: 500;
+  color: #ff7875;
+  font-weight: 600;
   margin-left: 4px;
+  transition: color 0.2s;
 }
-
 .register-link:hover {
+  color: #ff4d4f;
   text-decoration: underline;
 }
-
 @media (max-width: 480px) {
   .login-card {
-    padding: 24px;
-    margin: 16px;
+    padding: 18px 8px 16px 8px;
+    margin: 8px;
   }
-
   #userLoginPage {
     align-items: flex-start;
-    padding-top: 20vh;
+    padding-top: 10vh;
+  }
+  .title {
+    font-size: 22px;
   }
 }
 </style>
