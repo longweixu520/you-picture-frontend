@@ -3,42 +3,47 @@
     <h2 style="margin-bottom: 16px">
       {{ route.query?.id ? '修改图片' : '创建图片' }}
     </h2>
+    <!-- 图片上传组件 -->
     <PictureUpload :picture="picture" :onSuccess="onSuccess" />
-    <a-form v-if="picture" layout="vertical" :model="pictureForm" @finish="handleSubmit">
-      <a-form-item label="名称" name="name">
-        <a-input v-model:value="pictureForm.name" placeholder="请输入名称" />
+    <!-- 图片信息表单 -->
+    <a-form
+      layout="vertical"
+      :model="pictureForm"
+      @finish="handleSubmit"
+      style="margin-top: 24px"
+    >
+      <a-form-item name="name" label="名称">
+        <a-input v-model:value="pictureForm.name" placeholder="请输入名称" allow-clear />
       </a-form-item>
-      <a-form-item label="简介" name="introduction">
+      <a-form-item name="introduction" label="简介">
         <a-textarea
           v-model:value="pictureForm.introduction"
           placeholder="请输入简介"
-          :rows="2"
-          autoSize
-          allowClear
+          :auto-size="{ minRows: 2, maxRows: 5 }"
+          allow-clear
         />
       </a-form-item>
-      <a-form-item label="分类" name="category">
+      <a-form-item name="category" label="分类">
         <a-auto-complete
           v-model:value="pictureForm.category"
           placeholder="请输入分类"
-          :options="categoryOptions.map((item) => ({ value: item }))"
-          allowClear
+          :options="categoryOptions"
+          allow-clear
         />
       </a-form-item>
-      <a-form-item label="标签" name="tags">
+      <a-form-item name="tags" label="标签">
         <a-select
           v-model:value="pictureForm.tags"
           mode="tags"
           placeholder="请输入标签"
-          :options="tagOptions.map((item) => ({ value: item, label: item }))"
-          allowClear
+          :options="tagOptions"
+          allow-clear
         />
       </a-form-item>
       <a-form-item>
-        <a-button type="primary" html-type="submit" style="width: 100%">创建</a-button>
-      </a-form-item>
-      <a-form-item>
-        <a-button danger style="width: 100%" @click="handleCancel">取消</a-button>
+        <a-button type="primary" html-type="submit" style="width: 100%">
+          {{ route.query?.id ? '保存' : '创建' }}
+        </a-button>
       </a-form-item>
     </a-form>
   </div>
@@ -46,15 +51,17 @@
 
 <script setup lang="ts">
 import PictureUpload from '@/components/PictureUpload.vue'
-import { onMounted, reactive, ref } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
+import { message } from 'ant-design-vue'
 import {
   editPictureUsingPost,
   getPictureVoByIdUsingGet,
   listPictureTagCategoryUsingGet,
-  deletePictureUsingPost,
 } from '@/api/pictureController.ts'
 import { useRoute, useRouter } from 'vue-router'
-import { message } from 'ant-design-vue'
+
+const router = useRouter()
+const route = useRoute()
 
 const picture = ref<API.PictureVO>()
 const pictureForm = reactive<{
@@ -63,65 +70,59 @@ const pictureForm = reactive<{
   category?: string
   tags?: string[]
 }>({})
+
+const categoryOptions = ref<{ value: string; label: string }[]>([])
+const tagOptions = ref<{ value: string; label: string }[]>([])
+
 const onSuccess = (newPicture: API.PictureVO) => {
   picture.value = newPicture
   pictureForm.name = newPicture.name
   pictureForm.introduction = newPicture.introduction
   pictureForm.category = newPicture.category
-  pictureForm.tags =
-    typeof newPicture.tags === 'string' ? JSON.parse(newPicture.tags) : newPicture.tags
+  pictureForm.tags = Array.isArray(newPicture.tags)
+    ? newPicture.tags
+    : typeof newPicture.tags === 'string'
+      ? JSON.parse(newPicture.tags)
+      : []
 }
-const router = useRouter()
 
-/**
- * 提交表单
- * @param values
- */
-const handleSubmit = async (values: Record<string, any>) => {
+const handleSubmit = async (values: any) => {
   const pictureId = picture.value?.id
-  if (!pictureId) return
+  if (!pictureId) {
+    message.error('请先上传图片')
+    return
+  }
   const res = await editPictureUsingPost({
     id: pictureId,
     ...values,
     tags: Array.isArray(values.tags) ? values.tags : [],
   })
   if (res.data.code === 0 && res.data.data) {
-    message.success('创建成功')
-    // 跳转到图片详情页
-    router.push({
-      path: `/picture/${pictureId}`,
-    })
+    message.success(route.query?.id ? '保存成功' : '创建成功')
+    router.push({ path: `/picture/${pictureId}` })
   } else {
-    message.error('创建失败，' + res.data.message)
+    message.error('操作失败，' + res.data.message)
   }
 }
-const categoryOptions = ref<string[]>([])
-const tagOptions = ref<string[]>([])
 
-// 获取标签和分类选项
 const getTagCategoryOptions = async () => {
   const res = await listPictureTagCategoryUsingGet()
   if (res.data.code === 0 && res.data.data) {
-    // 直接使用字符串数组，因为a-select和a-auto-complete可以直接使用
-    tagOptions.value = res.data.data.tagList ?? []
-    categoryOptions.value = res.data.data.categoryList ?? []
+    tagOptions.value = (res.data.data.tagList ?? []).map((data: string) => ({
+      value: data,
+      label: data,
+    }))
+    categoryOptions.value = (res.data.data.categoryList ?? []).map((data: string) => ({
+      value: data,
+      label: data,
+    }))
   } else {
-    message.error('加载选项失败，' + res.data.message)
+    message.error('获取标签分类列表失败，' + res.data.message)
   }
 }
 
-onMounted(() => {
-  getTagCategoryOptions()
-})
-
-const route = useRoute()
-
-// 获取老数据
 const getOldPicture = async () => {
-  // 获取数据
-  const idRaw = route.query?.id
-  const id =
-    typeof idRaw === 'string' ? Number(idRaw) : Array.isArray(idRaw) ? Number(idRaw[0]) : undefined
+  const id = route.query?.id
   if (id) {
     const res = await getPictureVoByIdUsingGet({ id })
     if (res.data.code === 0 && res.data.data) {
@@ -130,21 +131,32 @@ const getOldPicture = async () => {
       pictureForm.name = data.name
       pictureForm.introduction = data.introduction
       pictureForm.category = data.category
-      pictureForm.tags = typeof data.tags === 'string' ? JSON.parse(data.tags) : data.tags
+      pictureForm.tags = Array.isArray(data.tags)
+        ? data.tags
+        : typeof data.tags === 'string'
+          ? JSON.parse(data.tags)
+          : []
     }
+  } else {
+    picture.value = undefined
+    pictureForm.name = ''
+    pictureForm.introduction = ''
+    pictureForm.category = ''
+    pictureForm.tags = []
   }
 }
 
 onMounted(() => {
+  getTagCategoryOptions()
   getOldPicture()
 })
 
-const handleCancel = async () => {
-  if (picture.value?.id) {
-    await deletePictureUsingPost({ id: picture.value.id })
+watch(
+  () => route.query.id,
+  () => {
+    getOldPicture()
   }
-  router.push('/admin/picture_manage')
-}
+)
 </script>
 
 <style scoped>
