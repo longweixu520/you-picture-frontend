@@ -1,11 +1,11 @@
 <template>
   <div id="basicLayout">
-    <a-layout style="min-height: 100vh">
+    <a-layout style="min-height: 100vh; display: flex; flex-direction: column">
       <a-layout-header class="header">
         <GlobalHeader />
       </a-layout-header>
 
-      <a-layout-content class="content">
+      <a-layout-content class="content" style="flex-grow: 1">
         <router-view />
       </a-layout-content>
 
@@ -52,25 +52,28 @@ import GlobalHeader from '@/components/GlobalHeader.vue'
   padding-inline-start: 20px;
   background: white;
   color: unset;
-  margin-bottom: 16px;
+  margin-bottom: 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  z-index: 100;
 }
 
 #basicLayout .content {
-  padding: 20px;
-  background: linear-gradient(to right, #fefefe, #fff);
-  margin-bottom: 28px;
+  padding: 0;
+  background: transparent;
+  margin-bottom: 0;
+  flex: 1;
 }
 
 #basicLayout .footer {
-  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-  padding: 20px;
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
+  background: linear-gradient(to top left, #e0e7ef 0%, #f6f8ff 100%);
+  padding: 16px 20px;
+  position: relative;
+  bottom: unset;
+  left: unset;
+  right: unset;
   text-align: center;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
+  border-top: none;
 }
 
 .footer-content {
@@ -79,7 +82,8 @@ import GlobalHeader from '@/components/GlobalHeader.vue'
   gap: 8px;
 }
 
-.rainbow-text, .rainbow-text-sub {
+.rainbow-text,
+.rainbow-text-sub {
   font-size: 16px;
   font-weight: bold;
   margin: 0 auto;
@@ -96,23 +100,51 @@ import GlobalHeader from '@/components/GlobalHeader.vue'
 }
 
 @keyframes rainbow {
-  0% { color: #ff0000; transform: translateY(0); }
-  14% { color: #ff7f00; }
-  28% { color: #ffff00; transform: translateY(-3px); }
-  42% { color: #00ff00; }
-  57% { color: #0000ff; transform: translateY(0); }
-  71% { color: #4b0082; }
-  85% { color: #9400d3; transform: translateY(3px); }
-  100% { color: #ff0000; transform: translateY(0); }
+  0% {
+    color: #ff0000;
+    transform: translateY(0);
+  }
+  14% {
+    color: #ff7f00;
+  }
+  28% {
+    color: #ffff00;
+    transform: translateY(-3px);
+  }
+  42% {
+    color: #00ff00;
+  }
+  57% {
+    color: #0000ff;
+    transform: translateY(0);
+  }
+  71% {
+    color: #4b0082;
+  }
+  85% {
+    color: #9400d3;
+    transform: translateY(3px);
+  }
+  100% {
+    color: #ff0000;
+    transform: translateY(0);
+  }
 }
 
 /* 添加一些悬停效果 */
 .rainbow-char:hover {
-  animation: rainbow 1s infinite, bounce 0.5s;
+  animation:
+    rainbow 1s infinite,
+    bounce 0.5s;
 }
 
 @keyframes bounce {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-10px); }
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
 }
 </style>

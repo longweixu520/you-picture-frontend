@@ -235,7 +235,7 @@ onMounted(() => {
 #homePage {
   min-height: 100vh;
   width: 100vw;
-  background: linear-gradient(135deg, #e0e7ef 0%, #f6f8ff 100%);
+  background: linear-gradient(to bottom right, #f0f2f5, #e0e7ef); /* Softer, more modern gradient */
   display: flex;
   justify-content: center;
   align-items: flex-start;
@@ -244,15 +244,16 @@ onMounted(() => {
   overflow-x: hidden;
 }
 .main-content {
-  width: 100%;
-  max-width: 1400px;
-  margin: 32px auto 0 auto;
+  width: 90%; /* Changed from 100% to 90% */
+  max-width: 1400px; /* Kept max-width for very large screens */
+  margin: 32px auto 0 auto; /* Adjusted margin for top space */
   background: #fff;
   border-radius: 24px;
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.1);
-  padding: 32px 32px 64px 32px;
+  padding: 32px; /* Simplified padding */
   position: relative;
   min-height: 80vh;
+  box-sizing: border-box; /* Ensure padding is included in width */
 }
 .search-bar-area {
   width: 100%;
@@ -306,23 +307,27 @@ onMounted(() => {
 .picture-card {
   background: #fff;
   border-radius: 18px;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05); /* Softer, more subtle shadow */
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  transition: box-shadow 0.2s;
+  transition: all 0.3s ease; /* Smoother transition */
   cursor: pointer;
   position: relative;
   min-height: 320px;
 }
 .picture-card:hover {
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.14);
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.1); /* Enhanced hover shadow */
+  transform: translateY(-5px); /* Slight lift effect on hover */
 }
 .picture-img-wrapper {
   width: 100%;
   aspect-ratio: 16/10;
   background: #f0f2f5;
   position: relative;
+  border-top-left-radius: 16px; /* Rounded corners for the image */
+  border-top-right-radius: 16px; /* Rounded corners for the image */
+  overflow: hidden; /* Ensure image respects border-radius */
 }
 .picture-img {
   width: 100%;
@@ -419,19 +424,19 @@ onMounted(() => {
 }
 @media (max-width: 900px) {
   .main-content {
-    padding: 8px 0 64px 0;
-    margin: 8px 0 8px 0;
+    padding: 2% 2%; /* Percentage-based padding for smaller screens */
+    margin: 8px auto; /* Centered margin for smaller screens */
   }
   .search-bar-area {
-    max-width: 99vw;
+    max-width: 95%; /* Adjusted max-width for search bar on smaller screens */
     padding: 0;
   }
   .picture-grid {
-    grid-template-columns: repeat(auto-fill, minmax(98vw, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(90vw, 1fr)); /* Adjusted for smaller screens */
   }
   .pagination-bar-abs {
-    right: 8px;
-    bottom: 8px;
+    right: 2%; /* Percentage-based positioning */
+    bottom: 2%; /* Percentage-based positioning */
     padding: 4px 8px;
   }
 }
