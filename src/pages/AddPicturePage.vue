@@ -3,10 +3,11 @@
     <h2 style="margin-bottom: 16px">
       {{ route.query?.id ? '修改图片' : '创建图片' }}
     </h2>
-    <!-- 图片上传组件 -->
+    <!-- 上传图片：新建时只显示上传框，上传后才显示表单；编辑时直接显示图片和表单 -->
     <PictureUpload :picture="picture" :onSuccess="onSuccess" />
-    <!-- 图片信息表单 -->
+    <!-- 只有上传成功或编辑时才显示表单 -->
     <a-form
+      v-if="picture && picture.url"
       layout="vertical"
       :model="pictureForm"
       @finish="handleSubmit"
@@ -45,6 +46,9 @@
           {{ route.query?.id ? '保存' : '创建' }}
         </a-button>
       </a-form-item>
+      <a-form-item>
+        <a-button danger style="width: 100%" @click="handleCancel">取消</a-button>
+      </a-form-item>
     </a-form>
   </div>
 </template>
@@ -57,6 +61,7 @@ import {
   editPictureUsingPost,
   getPictureVoByIdUsingGet,
   listPictureTagCategoryUsingGet,
+  deletePictureUsingPost,
 } from '@/api/pictureController.ts'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -103,6 +108,14 @@ const handleSubmit = async (values: any) => {
   } else {
     message.error('操作失败，' + res.data.message)
   }
+}
+
+const handleCancel = async () => {
+  // 新建时，上传后点击取消，删除COS图片且不保存数据库
+  if (picture.value?.id && !route.query?.id) {
+    await deletePictureUsingPost({ id: picture.value.id })
+  }
+  router.push('/admin/picture_manage')
 }
 
 const getTagCategoryOptions = async () => {
@@ -155,7 +168,7 @@ watch(
   () => route.query.id,
   () => {
     getOldPicture()
-  }
+  },
 )
 </script>
 
