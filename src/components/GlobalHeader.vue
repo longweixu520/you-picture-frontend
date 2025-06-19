@@ -23,19 +23,16 @@
             <a-dropdown>
               <ASpace>
                 <a-avatar :src="loginUserStore.loginUser.userAvatar" />
-                {{ loginUserStore.loginUser.userName ?? '无名' }}
+                <span class="user-name">{{ loginUserStore.loginUser.userName ?? '无名' }}</span>
               </ASpace>
               <template #overlay>
                 <a-menu>
-                  <a-menu-item @click="doLogout">
-                    <LogoutOutlined />
-                    退出登录
-                  </a-menu-item>
+                  <a-menu-item @click="goUserCenter"> <UserOutlined /> 个人中心 </a-menu-item>
+                  <a-menu-item @click="doLogout"> <LogoutOutlined /> 退出登录 </a-menu-item>
                 </a-menu>
               </template>
             </a-dropdown>
           </div>
-
           <div v-else>
             <a-button type="primary" href="/user/login">登录</a-button>
           </div>
@@ -47,7 +44,7 @@
 
 <script lang="ts" setup>
 import { h, ref, computed } from 'vue'
-import { HomeOutlined, LogoutOutlined } from '@ant-design/icons-vue'
+import { HomeOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons-vue'
 import type { MenuProps } from 'ant-design-vue'
 import { message } from 'ant-design-vue'
 
@@ -84,7 +81,7 @@ const allItems = ref<MenuProps['items']>([
 
 // 计算属性，根据用户权限过滤菜单项
 const filteredItems = computed(() => {
-  return allItems.value?.filter(item => {
+  return allItems.value?.filter((item) => {
     // 如果不是管理员，过滤掉/admin开头的菜单
     if (item?.key?.toString().startsWith('/admin')) {
       return loginUserStore.loginUser.userRole === 'admin'
@@ -127,6 +124,9 @@ const doMenuClick = ({ key }: { key: string }) => {
   })
 }
 
+const goUserCenter = () => {
+  router.push({ path: '/user/center' })
+}
 </script>
 
 <style scoped>
@@ -143,5 +143,18 @@ const doMenuClick = ({ key }: { key: string }) => {
 
 .logo {
   height: 48px;
+}
+
+.user-login-status {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  height: 100%;
+}
+
+.user-name {
+  margin-left: 8px;
+  font-weight: 500;
+  color: #333;
 }
 </style>

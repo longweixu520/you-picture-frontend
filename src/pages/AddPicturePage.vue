@@ -1,55 +1,58 @@
 <template>
-  <div id="addPicturePage">
-    <h2 style="margin-bottom: 16px">
+  <div class="add-picture-page-vertical">
+    <h2 class="add-picture-title">
       {{ route.query?.id ? '修改图片' : '创建图片' }}
     </h2>
-    <!-- 上传图片：新建时只显示上传框，上传后才显示表单；编辑时直接显示图片和表单 -->
-    <PictureUpload :picture="picture" :onSuccess="onSuccess" />
-    <!-- 只有上传成功或编辑时才显示表单 -->
-    <a-form
-      v-if="picture && picture.url"
-      layout="vertical"
-      :model="pictureForm"
-      @finish="handleSubmit"
-      style="margin-top: 24px"
-    >
-      <a-form-item name="name" label="名称">
-        <a-input v-model:value="pictureForm.name" placeholder="请输入名称" allow-clear />
-      </a-form-item>
-      <a-form-item name="introduction" label="简介">
-        <a-textarea
-          v-model:value="pictureForm.introduction"
-          placeholder="请输入简介"
-          :auto-size="{ minRows: 2, maxRows: 5 }"
-          allow-clear
-        />
-      </a-form-item>
-      <a-form-item name="category" label="分类">
-        <a-auto-complete
-          v-model:value="pictureForm.category"
-          placeholder="请输入分类"
-          :options="categoryOptions"
-          allow-clear
-        />
-      </a-form-item>
-      <a-form-item name="tags" label="标签">
-        <a-select
-          v-model:value="pictureForm.tags"
-          mode="tags"
-          placeholder="请输入标签"
-          :options="tagOptions"
-          allow-clear
-        />
-      </a-form-item>
-      <a-form-item>
-        <a-button type="primary" html-type="submit" style="width: 100%">
-          {{ route.query?.id ? '保存' : '创建' }}
-        </a-button>
-      </a-form-item>
-      <a-form-item>
-        <a-button danger style="width: 100%" @click="handleCancel">取消</a-button>
-      </a-form-item>
-    </a-form>
+    <div class="add-picture-card">
+      <PictureUpload :picture="picture" :onSuccess="onSuccess" />
+      <div v-if="picture && picture.url" class="picture-preview">
+        <img :src="picture.url" alt="图片预览" />
+      </div>
+      <a-form
+        v-if="picture && picture.url"
+        layout="vertical"
+        :model="pictureForm"
+        @finish="handleSubmit"
+        class="add-picture-form"
+      >
+        <a-form-item name="name" label="名称">
+          <a-input v-model:value="pictureForm.name" placeholder="请输入名称" allow-clear />
+        </a-form-item>
+        <a-form-item name="introduction" label="简介">
+          <a-textarea
+            v-model:value="pictureForm.introduction"
+            placeholder="请输入简介"
+            :auto-size="{ minRows: 2, maxRows: 5 }"
+            allow-clear
+          />
+        </a-form-item>
+        <a-form-item name="category" label="分类">
+          <a-auto-complete
+            v-model:value="pictureForm.category"
+            placeholder="请输入分类"
+            :options="categoryOptions"
+            allow-clear
+          />
+        </a-form-item>
+        <a-form-item name="tags" label="标签">
+          <a-select
+            v-model:value="pictureForm.tags"
+            mode="tags"
+            placeholder="请输入标签"
+            :options="tagOptions"
+            allow-clear
+          />
+        </a-form-item>
+        <a-form-item>
+          <a-button type="primary" html-type="submit" style="width: 100%">
+            {{ route.query?.id ? '保存' : '创建' }}
+          </a-button>
+        </a-form-item>
+        <a-form-item>
+          <a-button danger style="width: 100%" @click="handleCancel">取消</a-button>
+        </a-form-item>
+      </a-form>
+    </div>
   </div>
 </template>
 
@@ -173,8 +176,54 @@ watch(
 </script>
 
 <style scoped>
-#addPicturePage {
-  max-width: 720px;
-  margin: 0 auto;
+.add-picture-page-vertical {
+  max-width: 520px;
+  margin: 40px auto 0 auto;
+  padding: 24px 0 40px 0;
+}
+.add-picture-title {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: 600;
+  margin-bottom: 32px;
+  letter-spacing: 2px;
+}
+.add-picture-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+  padding: 32px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.add-picture-form {
+  width: 100%;
+  margin-top: 24px;
+}
+.picture-preview {
+  margin-top: 24px;
+  width: 100%;
+  max-width: 420px;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.12);
+}
+.picture-preview img {
+  width: 100%;
+  display: block;
+  border-radius: 12px;
+}
+@media (max-width: 900px) {
+  .add-picture-page-vertical {
+    max-width: 100%;
+    padding: 12px 0 24px 0;
+  }
+  .add-picture-card {
+    padding: 16px 4px;
+  }
+  .picture-preview {
+    max-width: 100%;
+  }
 }
 </style>

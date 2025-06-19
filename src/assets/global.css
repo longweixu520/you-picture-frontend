@@ -1,0 +1,115 @@
+:root {
+  --primary-color: #2ecc71;
+  --primary-hover: #27ae60;
+  --card-radius: 18px;
+  --card-shadow: 0 4px 24px rgba(46, 204, 113, 0.08);
+  --main-bg: #f6fcf7;
+  --card-bg: #fff;
+  --font-family: 'PingFang SC', 'Microsoft YaHei', Arial, sans-serif;
+}
+
+/* 全局基础样式 */
+html,
+body {
+  font-family: var(--font-family);
+  background: var(--main-bg);
+  color: #222;
+  margin: 0;
+  padding: 0;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+a {
+  color: var(--primary-color);
+  text-decoration: none;
+  transition: color 0.2s;
+}
+a:hover {
+  color: var(--primary-hover);
+}
+
+button,
+.ant-btn {
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  background: var(--primary-color);
+  color: #fff;
+  border: none;
+  transition:
+    background 0.2s,
+    color 0.2s;
+}
+button:hover,
+.ant-btn:hover,
+.ant-btn:focus {
+  background: var(--primary-hover) !important;
+  color: #fff !important;
+}
+
+input,
+.ant-input,
+textarea,
+.ant-input-affix-wrapper {
+  border-radius: 8px !important;
+  font-size: 15px !important;
+  border: 1px solid #d4f5e9 !important;
+  background: #f8fefb !important;
+  transition: border 0.2s;
+}
+input:focus,
+.ant-input:focus,
+textarea:focus,
+.ant-input-affix-wrapper:focus {
+  border: 1.5px solid var(--primary-color) !important;
+}
+
+::-webkit-scrollbar {
+  width: 8px;
+  background: #eafaf1;
+}
+::-webkit-scrollbar-thumb {
+  background: #b7eac7;
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7ed6a7;
+}
+
+.ant-layout,
+.ant-layout-content,
+.ant-layout-header,
+.ant-layout-footer {
+  background: transparent !important;
+}
+
+/* 响应式字体 */
+@media (max-width: 600px) {
+  html {
+    font-size: 15px;
+  }
+}
+
+.main-container {
+  width: 100%;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: 12px 8px 18px 8px;
+  background: var(--card-bg);
+  border-radius: var(--card-radius);
+  box-shadow: var(--card-shadow);
+  min-height: 70vh;
+  box-sizing: border-box;
+}
+
+@media (max-width: 900px) {
+  .main-container {
+    max-width: 99vw;
+    padding: 4px 1vw 12px 1vw;
+    border-radius: 8px;
+  }
+}

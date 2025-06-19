@@ -1,42 +1,36 @@
 <template>
   <div id="basicLayout">
-    <a-layout style="min-height: 100vh; display: flex; flex-direction: column">
+    <a-layout
+      style="min-height: 100vh; display: flex; flex-direction: column; background: transparent"
+    >
       <a-layout-header class="header">
         <GlobalHeader />
       </a-layout-header>
 
-      <a-layout-content class="content" style="flex-grow: 1">
+      <a-layout-content
+        class="content"
+        style="
+          flex-grow: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: flex-start;
+          padding: 0;
+          background: transparent;
+        "
+      >
         <router-view />
       </a-layout-content>
 
       <a-layout-footer class="footer">
-        <div class="footer-content">
-          <div class="rainbow-text">
-            <span class="rainbow-char">龙</span>
-            <span class="rainbow-char">龙</span>
-            <span class="rainbow-char">云</span>
-            <span class="rainbow-char">图</span>
-            <span class="rainbow-char">库</span>
-            <span> </span>
-            <span class="rainbow-char">B</span>
-            <span class="rainbow-char">y</span>
-            <span> </span>
-            <span class="rainbow-char">宁</span>
-            <span class="rainbow-char">巧</span>
-            <span class="rainbow-char">玲</span>
-            <span class="rainbow-char">的</span>
-            <span class="rainbow-char">好</span>
-            <span class="rainbow-char">龙</span>
-            <span class="rainbow-char">龙</span>
-          </div>
-          <div class="rainbow-text-sub">
-            <span class="rainbow-char">龙</span>
-            <span class="rainbow-char">哥</span>
-            <span class="rainbow-char">哥</span>
-            <span class="rainbow-char">最</span>
-            <span class="rainbow-char">好</span>
-            <span class="rainbow-char">了</span>
-          </div>
+        <div class="footer-content-simple">
+          <span>© 2024 龙龙云图库</span>
+          <span class="footer-divider">|</span>
+          <span>By 宁巧玲的好龙龙</span>
+          <span class="footer-divider">|</span>
+          <a href="https://github.com/" target="_blank">GitHub</a>
+          <span class="footer-divider">|</span>
+          <a href="https://www.codefather.cn" target="_blank">编程导航</a>
         </div>
       </a-layout-footer>
     </a-layout>
@@ -62,89 +56,54 @@ import GlobalHeader from '@/components/GlobalHeader.vue'
   background: transparent;
   margin-bottom: 0;
   flex: 1;
+  width: 100vw;
+  min-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
 }
 
 #basicLayout .footer {
-  background: linear-gradient(to top left, #e0e7ef 0%, #f6f8ff 100%);
-  padding: 16px 20px;
-  position: relative;
-  bottom: unset;
-  left: unset;
-  right: unset;
-  text-align: center;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.03);
-  border-top: none;
+  background: #f6f8fa;
+  padding: 8px 0 4px 0;
+  border-radius: 0 0 12px 12px;
+  box-shadow: none;
+  min-height: 36px;
 }
 
-.footer-content {
+.footer-content-simple {
   display: flex;
-  flex-direction: column;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  font-size: 14px;
+  color: #888;
+  min-height: 36px;
+}
+
+.footer-divider {
+  color: #ccc;
+  margin: 0 4px;
+}
+
+.footer-links {
+  margin-top: 8px;
+  color: #888;
+  font-size: 14px;
+  display: flex;
   gap: 8px;
+  align-items: center;
 }
 
-.rainbow-text,
-.rainbow-text-sub {
-  font-size: 16px;
-  font-weight: bold;
-  margin: 0 auto;
-  display: inline-block;
+.footer-links a {
+  color: #1677ff;
+  text-decoration: none;
+  transition: color 0.2s;
 }
 
-.rainbow-char {
-  animation: rainbow 3s infinite;
-  display: inline-block;
-}
-
-.rainbow-text-sub .rainbow-char {
-  animation-delay: 0.5s;
-}
-
-@keyframes rainbow {
-  0% {
-    color: #ff0000;
-    transform: translateY(0);
-  }
-  14% {
-    color: #ff7f00;
-  }
-  28% {
-    color: #ffff00;
-    transform: translateY(-3px);
-  }
-  42% {
-    color: #00ff00;
-  }
-  57% {
-    color: #0000ff;
-    transform: translateY(0);
-  }
-  71% {
-    color: #4b0082;
-  }
-  85% {
-    color: #9400d3;
-    transform: translateY(3px);
-  }
-  100% {
-    color: #ff0000;
-    transform: translateY(0);
-  }
-}
-
-/* 添加一些悬停效果 */
-.rainbow-char:hover {
-  animation:
-    rainbow 1s infinite,
-    bounce 0.5s;
-}
-
-@keyframes bounce {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-10px);
-  }
+.footer-links a:hover {
+  color: #0958d9;
 }
 </style>
