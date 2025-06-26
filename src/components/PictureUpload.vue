@@ -8,6 +8,7 @@
       :custom-request="handleUpload"
       :before-upload="beforeUpload"
       accept="image/jpeg,image/png"
+      :file-list="fileList"
     >
       <template v-if="props.picture && getPictureUrl()">
         <img :src="getPictureUrl()" alt="uploaded picture" class="uploaded-image" />
@@ -23,7 +24,7 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import { PlusOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 import { message } from 'ant-design-vue'
 import type { UploadProps } from 'ant-design-vue'
@@ -37,6 +38,26 @@ interface Props {
 
 const props = defineProps<Props>()
 const loading = ref(false)
+const fileList = ref<any[]>([])
+
+watch(
+  () => props.picture,
+  (newVal) => {
+    if (newVal && newVal.url) {
+      fileList.value = [
+        {
+          uid: newVal.id ? String(newVal.id) : '-1',
+          name: newVal.name || '图片',
+          status: 'done',
+          url: newVal.url,
+        },
+      ]
+    } else {
+      fileList.value = []
+    }
+  },
+  { immediate: true },
+)
 
 const getPictureUrl = (): string | undefined => {
   // 根据实际API返回结构调整URL字段
